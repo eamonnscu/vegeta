@@ -66,14 +66,14 @@ func NewAttacker(redirects int, timeout time.Duration, laddr net.IPAddr) *Attack
 // The results of the attack are put into a slice which is returned.
 //
 // Attack is a wrapper around DefaultAttacker.Attack
-func Attack(tgts Targets, rate uint64, du time.Duration, ranges []string) Results {
+func Attack(tgts Targets, rate uint64, du time.Duration, ranges string) Results {
 	return DefaultAttacker.Attack(tgts, rate, du, ranges)
 }
 
 // Attack attacks the passed Targets (http.Requests) at the rate specified for
 // duration time and then waits for all the requests to come back.
 // The results of the attack are put into a slice which is returned.
-func (a *Attacker) Attack(tgts Targets, rate uint64, du time.Duration, ranges []string) Results {
+func (a *Attacker) Attack(tgts Targets, rate uint64, du time.Duration, ranges string) Results {
 	hits := int(rate * uint64(du.Seconds()))
 	resc := make(chan Result)
 	throttle := time.NewTicker(time.Duration(1e9 / rate))
@@ -92,14 +92,14 @@ func (a *Attacker) Attack(tgts Targets, rate uint64, du time.Duration, ranges []
 	return results.Sort()
 }
 
-func (a *Attacker) hit(tgt Target, ranges []string) (res Result) {
+func (a *Attacker) hit(tgt Target, ranges string) (res Result) {
 	req, err := tgt.Request()
 	if err != nil {
 		res.Error = err.Error()
 		return res
 	}
 
-	switch opts.ranges {
+	switch ranges {
 	case "random":
 		req.Header.Add("Range", "bytes=0-1048567")
 		break
