@@ -25,6 +25,7 @@ func attackCmd() command {
 	fs.StringVar(&opts.outputf, "output", "stdout", "Output file")
 	fs.StringVar(&opts.bodyf, "body", "", "Requests body file")
 	fs.StringVar(&opts.ordering, "ordering", "random", "Attack ordering [sequential, random]")
+	fs.StringVar(&opts.ranges, "ranges", "off", "Ranges to Send [off, random, normalized]")
 	fs.DurationVar(&opts.duration, "duration", 10*time.Second, "Duration of the test")
 	fs.DurationVar(&opts.timeout, "timeout", vegeta.DefaultTimeout, "Requests timeout")
 	fs.Uint64Var(&opts.rate, "rate", 50, "Requests per second")
@@ -44,6 +45,7 @@ type attackOpts struct {
 	outputf   string
 	bodyf     string
 	ordering  string
+	ranges    string
 	duration  time.Duration
 	timeout   time.Duration
 	rate      uint64
@@ -96,6 +98,8 @@ func attack(opts *attackOpts) error {
 		return fmt.Errorf(errOrderingPrefix+"`%s` is invalid", opts.ordering)
 	}
 
+	// add checks on ranges input here
+
 	out, err := file(opts.outputf, true)
 	if err != nil {
 		return fmt.Errorf(errOutputFilePrefix+"(%s): %s", opts.outputf, err)
@@ -110,7 +114,7 @@ func attack(opts *attackOpts) error {
 		opts.ordering,
 		opts.duration,
 	)
-	results := atk.Attack(targets, opts.rate, opts.duration)
+	results := atk.Attack(targets, opts.rate, opts.duration, opts.ranges)
 
 	log.Printf("Done! Writing results to '%s'...", opts.outputf)
 	return results.Encode(out)
@@ -123,6 +127,7 @@ const (
 	errTargetsFilePrefix = "Targets file: "
 	errBodyFilePrefix    = "Body file: "
 	errOrderingPrefix    = "Ordering: "
+	errRangesPrefix      = "Ranges: "
 	errReportingPrefix   = "Reporting: "
 )
 
