@@ -82,6 +82,12 @@ responses delay.
 Specifies a request header to be used in all targets defined.
 You can specify as many as needed by repeating the flag.
 
+#### -ranges
+Allows you to simulate a pattern of 1MB range requests, `off` by default.
+The `random` option creates a completely random distribution of ranges.
+The `normalize` option will select a random range from preset normalized
+ranges (1st MB, 2nd MB, ..)
+
 #### -laddr
 Specifies the local IP address to be used.
 
