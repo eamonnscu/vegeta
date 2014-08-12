@@ -16,6 +16,7 @@ type Target struct {
 	URL    string
 	Body   []byte
 	Header http.Header
+	Size   int64
 }
 
 // Request creates an *http.Request out of Target and returns it along with an
@@ -40,7 +41,7 @@ type Targets []Target
 
 // NewTargetsFrom reads targets out of a line separated source skipping empty lines
 // It sets the passed body and http.Header on all targets.
-func NewTargetsFrom(source io.Reader, body []byte, header http.Header) (Targets, error) {
+func NewTargetsFrom(source io.Reader, body []byte, header http.Header, ranges string) (Targets, error) {
 	scanner := bufio.NewScanner(source)
 	var lines []string
 	for scanner.Scan() {
@@ -55,18 +56,28 @@ func NewTargetsFrom(source io.Reader, body []byte, header http.Header) (Targets,
 		return nil, err
 	}
 
-	return NewTargets(lines, body, header)
+	return NewTargets(lines, body, header, ranges)
 }
 
 // NewTargets instantiates Targets from a slice of strings.
 // It sets the passed body and http.Header on all targets.
-func NewTargets(lines []string, body []byte, header http.Header) (Targets, error) {
+func NewTargets(lines []string, body []byte, header http.Header, ranges string) (Targets, error) {
 	var targets Targets
 	for _, line := range lines {
 		ps := strings.Split(line, " ")
 		if len(ps) != 2 {
 			return nil, fmt.Errorf("invalid request format: `%s`", line)
 		}
+		// size := 0
+		// if ranges != "off" {
+		// 	// HEAD request, capture content length
+		// 	resp, err := http.Head(ps[1])
+		// 	if err != nil {
+		// 		return nil, fmt.Errorf("couldn't grab content-length: `%s`", ps[1])
+		// 	}
+
+		// 	return nil, fmt.Errorf("couldn't grab content-length: `%s`", resp)
+		// }
 		targets = append(targets, Target{Method: ps[0], URL: ps[1], Body: body, Header: header})
 	}
 	return targets, nil

@@ -84,7 +84,7 @@ func attack(opts *attackOpts) error {
 		}
 	}
 
-	targets, err := vegeta.NewTargetsFrom(in, body, opts.headers.Header)
+	targets, err := vegeta.NewTargetsFrom(in, body, opts.headers.Header, opts.ranges)
 	if err != nil {
 		return fmt.Errorf(errTargetsFilePrefix+"(%s): %s", opts.targetsf, err)
 	}
