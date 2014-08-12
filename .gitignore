@@ -26,3 +26,5 @@ vegeta.test
 targets.txt
 vegeta-*.tar.gz
 lib/lib.test
+
+results.bin

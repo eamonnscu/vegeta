@@ -12,11 +12,11 @@ import (
 
 // Target is a HTTP request blueprint
 type Target struct {
-	Method string
-	URL    string
-	Body   []byte
-	Header http.Header
-	Size   int64
+	Method        string
+	URL           string
+	Body          []byte
+	Header        http.Header
+	ContentLength int64
 }
 
 // Request creates an *http.Request out of Target and returns it along with an
@@ -68,17 +68,19 @@ func NewTargets(lines []string, body []byte, header http.Header, ranges string) 
 		if len(ps) != 2 {
 			return nil, fmt.Errorf("invalid request format: `%s`", line)
 		}
-		// size := 0
-		// if ranges != "off" {
-		// 	// HEAD request, capture content length
-		// 	resp, err := http.Head(ps[1])
-		// 	if err != nil {
-		// 		return nil, fmt.Errorf("couldn't grab content-length: `%s`", ps[1])
-		// 	}
 
-		// 	return nil, fmt.Errorf("couldn't grab content-length: `%s`", resp)
-		// }
-		targets = append(targets, Target{Method: ps[0], URL: ps[1], Body: body, Header: header})
+		var ContentLength int64
+		ContentLength = 0
+		if ranges != "off" {
+			// HEAD request, capture content length
+			resp, err := http.Head(ps[1])
+			ContentLength = resp.ContentLength
+			if err != nil {
+				return nil, fmt.Errorf("couldn't grab content-length: `%s`", ps[1])
+			}
+
+		}
+		targets = append(targets, Target{Method: ps[0], URL: ps[1], Body: body, Header: header, ContentLength: ContentLength})
 	}
 	return targets, nil
 }

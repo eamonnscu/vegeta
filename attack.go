@@ -84,6 +84,11 @@ func attack(opts *attackOpts) error {
 		}
 	}
 
+	if opts.ranges != "random" && opts.ranges != "normalized" && opts.ranges != "off" {
+		return fmt.Errorf(errRangesPrefix+"`%s` is invalid", opts.ranges)
+	}
+
+
 	targets, err := vegeta.NewTargetsFrom(in, body, opts.headers.Header, opts.ranges)
 	if err != nil {
 		return fmt.Errorf(errTargetsFilePrefix+"(%s): %s", opts.targetsf, err)
@@ -97,8 +102,6 @@ func attack(opts *attackOpts) error {
 	default:
 		return fmt.Errorf(errOrderingPrefix+"`%s` is invalid", opts.ordering)
 	}
-
-	// add checks on ranges input here
 
 	out, err := file(opts.outputf, true)
 	if err != nil {

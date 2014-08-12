@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net"
 	"net/http"
 	"time"
@@ -99,14 +100,16 @@ func (a *Attacker) hit(tgt Target, ranges string) (res Result) {
 		return res
 	}
 
-	switch ranges {
-	case "random":
-		req.Header.Add("Range", "bytes=0-1048567")
-		break
-	case "normailized":
-		req.Header.Add("Range", "bytes=0-1048567")
-		break
-	default:
+	if ranges != "off" && tgt.ContentLength > 1048576 {
+		start := rand.Int63n(tgt.ContentLength)
+
+		if ranges == "normalized" {
+			start = (start / 1048576) * 1048576
+		}
+
+		stop := start + 1048575
+
+		req.Header.Add("Range", fmt.Sprintf("bytes=%v-%v", start, stop))
 	}
 
 	res.Timestamp = time.Now()
